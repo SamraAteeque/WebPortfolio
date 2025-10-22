@@ -1,164 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, ChevronLeft, ChevronRight, Mail, Phone, MapPin, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
-// --- Custom Cursor Component ---
-const CustomCursor = () => {
-    const [position, setPosition] = useState({ x: 0, y: 0 });
-    const [isHovering, setIsHovering] = useState(false);
-
-    useEffect(() => {
-        const moveCursor = (e) => {
-            setPosition({ x: e.clientX, y: e.clientY });
-
-            const target = e.target;
-            if (window.getComputedStyle(target).getPropertyValue('cursor') === 'pointer') {
-                setIsHovering(true);
-            } else {
-                setIsHovering(false);
-            }
-        };
-
-        window.addEventListener('mousemove', moveCursor);
-        return () => window.removeEventListener('mousemove', moveCursor);
-    }, []);
-
-    const cursorVariants = {
-        default: {
-            width: 32,
-            height: 32,
-            backgroundColor: "rgba(255, 255, 255, 0.1)",
-            border: "1px solid rgba(255, 255, 255, 0.2)",
-            x: position.x - 16,
-            y: position.y - 16,
-        },
-        hover: {
-            width: 64,
-            height: 64,
-            backgroundColor: "rgba(52, 211, 153, 0.1)",
-            border: "1px solid rgba(52, 211, 153, 0.3)",
-            x: position.x - 32,
-            y: position.y - 32,
-        }
-    };
-
-    return (
-        <motion.div
-            className="fixed top-0 left-0 rounded-full pointer-events-none z-[9999] hidden md:block"
-            variants={cursorVariants}
-            animate={isHovering ? "hover" : "default"}
-            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-        />
-    );
-};
-
-// --- Main App Component ---
-export default function App() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
-
-  return (
-    <div className="bg-[#1E1E1E] min-h-screen text-gray-200 font-sans antialiased md:cursor-none">
-      <CustomCursor />
-      <ContactSection onButtonClick={openModal} />
-      <ContactModal isOpen={isModalOpen} onClose={closeModal} />
-    </div>
-  );
-}
-
-// --- Animated Tag Component ---
-const AnimatedTag = ({ tag, initialPosition, animation }) => {
-    return (
-        <motion.div
-            className={`absolute px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap ${tag.color} ${tag.textColor}`}
-            style={{
-                top: initialPosition.top,
-                left: initialPosition.left,
-                right: initialPosition.right,
-                bottom: initialPosition.bottom,
-            }}
-            animate={{ y: animation.y, x: animation.x }}
-            transition={{
-                duration: animation.duration,
-                ease: "easeInOut",
-                repeat: Infinity,
-                repeatType: "mirror",
-            }}
-        >
-            {tag.name}
-        </motion.div>
-    );
-};
-
-// --- Contact Section ---
-const ContactSection = ({ onButtonClick }) => {
-    const tags = [
-        { name: "React JS", color: "bg-blue-200", textColor: "text-blue-800" },
-        { name: "Tailwind CSS", color: "bg-green-200", textColor: "text-green-800" },
-        { name: "GSAP Animations", color: "bg-pink-200", textColor: "text-pink-800" },
-        { name: "MERN Stack", color: "bg-yellow-200", textColor: "text-yellow-800" },
-        { name: "Portfolio Websites", color: "bg-purple-200", textColor: "text-purple-800" },
-          { name: "Business Website", color: "bg-purple-200", textColor: "text-purple-800" },
-            { name: "E-Commerce Websites", color: "bg-purple-200", textColor: "text-purple-800" },
-        { name: "Responsive UI", color: "bg-cyan-200", textColor: "text-cyan-800" },
-         { name: "Full Stack Development", color: "bg-indigo-200", textColor: "text-indigo-800" },
-        { name: "SEO Friendly", color: "bg-orange-200", textColor: "text-orange-800" },
-        { name: "Animations & Transitions", color: "bg-red-200", textColor: "text-red-800" },
-    ];
-
-    const tagConfigurations = [
-        { pos: { top: '15%', left: '10%' }, anim: { y: [0, 20], x: [0, -10], duration: 15 } },
-        { pos: { top: '25%', right: '5%' }, anim: { y: [0, -25], x: [0, 15], duration: 18 } },
-        { pos: { top: '60%', left: '5%' }, anim: { y: [0, 15], x: [0, 20], duration: 12 } },
-        { pos: { bottom: '15%', right: '12%' }, anim: { y: [0, -20], x: [0, -15], duration: 20 } },
-        { pos: { top: '40%', left: '25%' }, anim: { y: [0, -15], x: [0, 10], duration: 17 } },
-        { pos: { bottom: '20%', left: '30%' }, anim: { y: [0, 25], x: [0, -10], duration: 14 } },
-        { pos: { top: '10%', right: '30%' }, anim: { y: [0, 10], x: [0, 15], duration: 19 } },
-        { pos: { bottom: '5%', left: '45%' }, anim: { y: [0, -15], x: [0, 0], duration: 16 } },
-        { pos: { top: '70%', right: '25%' }, anim: { y: [0, -10], x: [0, 20], duration: 13 } },
-        { pos: { top: '5%', left: '40%' }, anim: { y: [0, 20], x: [0, 10], duration: 22 } },
-    ];
-    
-    return(
-        <section id="contact" className="bg-slate-200 text-gray-800 py-24 md:py-48 relative overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
-                <motion.div 
-                    className="text-center flex flex-col items-center"
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.3 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                >
-                    <h2 className="text-4xl md:text-6xl font-bold tracking-tighter text-gray-900">Let's Build Something Amazing Together</h2>
-                    <p className="mt-6 text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                        I specialize in creating stunning frontend experiences using React, Tailwind CSS, and GSAP animations. From portfolio websites to full-stack MERN applications, I craft interactive, responsive, and SEO-friendly solutions tailored to your needs.
-                    </p>
-                    <motion.button 
-                        onClick={onButtonClick}
-                        className="bg-gray-800 text-white px-10 py-4 rounded-full font-semibold mt-10 inline-block"
-                        whileHover={{ scale: 1.05, backgroundColor: '#111827' }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-                    >
-                        Let's Work Together
-                    </motion.button>
-                </motion.div>
-            </div>
-            <div className="absolute inset-0 z-0 hidden md:block">
-                {tags.map((tag, i) => (
-                    <AnimatedTag key={tag.name} tag={tag} initialPosition={tagConfigurations[i % tagConfigurations.length].pos} animation={tagConfigurations[i % tagConfigurations.length].anim} />
-                ))}
-            </div>
-        </section>
-    );
-};
-
-// --- Contact Modal Component ---
-const ContactModal = ({ isOpen, onClose }) => {
-    const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitStatus, setSubmitStatus] = useState(null);
+const ContactPage = () => {
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        service: '', // Default value
+        message: ''
+    });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -167,90 +17,134 @@ const ContactModal = ({ isOpen, onClose }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setIsSubmitting(true);
-        setSubmitStatus(null);
-        
-        const subject = encodeURIComponent(`New message from ${formData.name}`);
-        const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`);
-        
-        setTimeout(() => {
-            window.location.href = `mailto:samra@gmail.com?subject=${subject}&body=${body}`;
-            setIsSubmitting(false);
-            setSubmitStatus('success');
-             setTimeout(() => {
-                onClose();
-                setSubmitStatus(null);
-                setFormData({ name: '', email: '', message: '' });
-             }, 2000);
-        }, 1000);
+        const subject = encodeURIComponent(`New Inquiry for ${formData.service} from ${formData.name}`);
+        const body = encodeURIComponent(
+            `Name: ${formData.name}\nEmail: ${formData.email}\nService of Interest: ${formData.service}\n\nMessage:\n${formData.message}`
+        );
+        // !!! IMPORTANT: Change this email to your own !!!
+        window.location.href = `mailto:youremail@example.com?subject=${subject}&body=${body}`;
     };
 
+    const inputClasses = "w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 text-black placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition";
+    const labelClasses = "block text-sm font-medium text-gray-300 mb-2";
 
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={onClose}
-                    className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[10000] flex items-center justify-center p-4"
+        <section id="contact" className="bg-[#111111] text-white py-24 sm:py-32">
+            <div className="max-w-7xl mx-auto px-4 md:px-8">
+                {/* Main Heading */}
+                <motion.div 
+                    initial={{ opacity: 0, y: -50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="text-center mb-16"
                 >
-                    <motion.div
-                        initial={{ scale: 0.9, opacity: 0, y: 50 }}
-                        animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.9, opacity: 0, y: 50 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                        onClick={(e) => e.stopPropagation()}
-                        className="bg-white text-gray-800 rounded-2xl shadow-2xl w-full max-w-lg p-8 relative"
-                    >
-                         <motion.button
-                            onClick={onClose}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-800"
-                            whileHover={{ scale: 1.1, rotate: 90 }}
-                        >
-                            <X size={24} />
-                        </motion.button>
-
-                        <h2 className="text-3xl font-bold mb-6">Contact Me</h2>
-                        
-                        {submitStatus === 'success' ? (
-                            <div className="text-center py-8">
-                                <h3 className="text-2xl font-bold text-green-600">Thank You!</h3>
-                                <p className="mt-2">Your email client should open shortly. If not, your message is ready to be sent.</p>
-                            </div>
-                        ) : (
-                            <form onSubmit={handleSubmit}>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label htmlFor="name" className="block text-sm font-medium text-gray-600 mb-1">Your Name</label>
-                                        <input type="text" name="name" id="name" required value={formData.name} onChange={handleChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-800 focus:border-transparent outline-none transition" />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="email" className="block text-sm font-medium text-gray-600 mb-1">Email Address</label>
-                                        <input type="email" name="email" id="email" required value={formData.email} onChange={handleChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-800 focus:border-transparent outline-none transition" />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="message" className="block text-sm font-medium text-gray-600 mb-1">Your Message</label>
-                                        <textarea name="message" id="message" rows="4" required value={formData.message} onChange={handleChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-800 focus:border-transparent outline-none transition"></textarea>
-                                    </div>
-                                </div>
-                                <div className="mt-6">
-                                     <motion.button 
-                                        type="submit"
-                                        className="w-full bg-gray-800 text-white px-8 py-3 rounded-full font-semibold inline-block disabled:bg-gray-400"
-                                        whileHover={{ scale: 1.05, backgroundColor: '#111827' }}
-                                        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-                                        disabled={isSubmitting}
-                                    >
-                                        {isSubmitting ? 'Sending...' : 'Send Message'}
-                                    </motion.button>
-                                </div>
-                            </form>
-                        )}
-                    </motion.div>
+                    <h2 className="text-4xl md:text-5xl font-bold tracking-tighter">
+                        Let's Build Something <span className="text-emerald-400">Amazing</span>
+                    </h2>
+                    <p className="mt-4 text-gray-400 max-w-2xl mx-auto">
+                        Have a project in mind or just want to say hi? Fill out the form or use the contact info below.
+                    </p>
                 </motion.div>
-            )}
-        </AnimatePresence>
+
+                {/* Split Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+                    
+                    {/* Left Column: Contact Info */}
+                    <motion.div
+                        initial={{ opacity: 0, x: -50 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, amount: 0.2 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                    >
+                        <h3 className="text-2xl font-bold mb-6">Contact Information</h3>
+                        <p className="text-gray-400 mb-8">
+                            Feel free to reach out via email or phone. I'm always open to discussing new projects and creative ideas.
+                        </p>
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-4">
+                                <div className="bg-white/10 p-3 rounded-full">
+                                    <Mail size={20} className="text-emerald-400" />
+                                </div>
+                                <div>
+                                    <p className="font-semibold">Email</p>
+                                    <a href="mailto:youremail@example.com" className="text-gray-300 hover:text-emerald-400 transition-colors">
+                                        samraateeque12@gmail.com
+                                    </a>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="bg-white/10 p-3 rounded-full">
+                                    <Phone size={20} className="text-emerald-400" />
+                                </div>
+                                <div>
+                                    <p className="font-semibold">Phone</p>
+                                    <a href="tel:+911234567890" className="text-gray-300 hover:text-emerald-400 transition-colors">
+                                        +91 7755845557
+                                    </a>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="bg-white/10 p-3 rounded-full">
+                                    <MapPin size={20} className="text-emerald-400" />
+                                </div>
+                                <div>
+                                    <p className="font-semibold">Location</p>
+                                    <p className="text-gray-300">Azamgarh, Uttar Pradesh, India</p>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* Right Column: Contact Form */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 50 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, amount: 0.2 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        className="bg-white/5 p-8 rounded-2xl border border-white/10 backdrop-blur-lg"
+                    >
+                        <form onSubmit={handleSubmit}>
+                            <div className="space-y-6">
+                                <div>
+                                    <label htmlFor="name" className={labelClasses}>Your Name</label>
+                                    <input type="text" name="name" id="name" required value={formData.name} onChange={handleChange} className={inputClasses} />
+                                </div>
+                                <div>
+                                    <label htmlFor="email" className={labelClasses}>Email Address</label>
+                                    <input type="email" name="email" id="email" required value={formData.email} onChange={handleChange} className={inputClasses} />
+                                </div>
+                                <div>
+                                    <label htmlFor="service" className={labelClasses}>Service of Interest</label>
+                                    <select name="service" id="service" value={formData.service} onChange={handleChange} className={inputClasses}>
+                                        <option>Portfolio Website</option>
+                                        <option>Landing Page</option>
+                                        <option>Business Website</option>
+                                        <option>E-commerce Store</option>
+                                        <option>Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label htmlFor="message" className={labelClasses}>Your Message</label>
+                                    <textarea name="message" id="message" rows="5" required value={formData.message} onChange={handleChange} className={inputClasses} placeholder="Tell me about your project..."></textarea>
+                                </div>
+                            </div>
+                            <div className="mt-8">
+                                <motion.button
+                                    type="submit"
+                                    className="w-full bg-emerald-600 text-white px-8 py-3 rounded-full font-semibold"
+                                    whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px rgba(52, 211, 153, 0.5)" }}
+                                    transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                                >
+                                    Send Message
+                                </motion.button>
+                            </div>
+                        </form>
+                    </motion.div>
+                </div>
+            </div>
+        </section>
     );
 };
+
+export default ContactPage;

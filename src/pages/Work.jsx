@@ -1,121 +1,136 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowUpRight, ArrowLeft, ArrowRight } from 'lucide-react';
 
-// Import your project images
+// ✅ Import all local images
 import Img1 from '../assets/Img1.png';
 import Img2 from '../assets/Img2.png';
 import Img3 from '../assets/Img3.png';
 import Img4 from '../assets/Img4.png';
 
+// --- Project Data with Type and Description ---
 const workProjects = [
-    {
-        title: "Modern Portfolio Website Design",
-        category: "Portfolio Website",
-        image: Img1,
-        link: "https://duo-plum.vercel.app/"
-    },
-    {
-        title: "Jewellery Business Landing Page",
-        category: "Jewellry Website",
-        image: Img2,
-        link: "https://jewellry-business.vercel.app/"
-    },
-    {
-        title: "Smart Shopping Hub",
-        category: "E-Commerce Website",
-        image: Img3,
-        link: "https://ecommerce-project-app-l9af.onrender.com/"
-    },
-    {
-        title: "Modern Website Design",
-        category: "Wedding Planner Website",
-        image: Img4,
-        link: "https://wedding-planner-p2ho.vercel.app/"
-    },
-    {
-        title: "Interior Design Showcase(Work in progress)",
-        category: "Interior Designer Website",
-        image: "https://images.unsplash.com/photo-1487017159037-56e632f91605?q=80&w=2070&auto=format&fit=crop",
-        link: "#"
-    },
-    {
-        title: "Landing Page(Work in progress)",
-        category: "Cafe Landing Page",
-        image: "https://images.unsplash.com/photo-1616763355548-1b606f47481c?q=80&w=2070&auto=format&fit=crop",
-        link: "#"
-    },
+    // --- Demo Projects ---
+    { id: 1, title: "Smart Shopping Hub", category: "E-Commerce Website", image: Img3, link: "https://ecommerce-project-app-l9af.onrender.com/", type: 'demo', description: "Developed a full-stack e-commerce platform with product management, user accounts, and a clean user interface using the MERN stack." },
+    { id: 2, title: "Modern Website Design", category: "Wedding Planner Website", image: Img4, link: "https://wedding-planner-p2ho.vercel.app/", type: 'demo', description: "Created a visually appealing and informative website for a professional wedding planner, focusing on high-quality image galleries and easy-to-use contact forms." },
+    { id: 3, title: "Modern Portfolio Template", category: "Portfolio Website", image: Img1, link: "https://duo-plum.vercel.app/", type: 'demo', description: "A sleek and modern portfolio template designed with React and Framer Motion, showcasing project sections and smooth page transitions." },
+    { id: 4, title: "Jewellery Brand Concept", category: "Jewellry Website", image: Img2, link: "https://jewellry-business.vercel.app/", type: 'demo', description: "Elegant landing page design concept developed for a luxury jewellery brand, emphasizing visual appeal and brand storytelling." },
+
+    // --- Client Project ---
+    { id: 5, title: "Interior Design Showcase (WIP)", category: "Interior Designer Website", image: "https://images.unsplash.com/photo-1533090481720-856c6e7c6c34?q=80&w=800&auto=format&fit=crop", link: "#", type: 'client', description: "A conceptual design for an interior design firm's website, focusing on large, high-impact imagery and detailed project case studies. (Work In Progress)" },
 ];
 
-// --- UPDATED Project Card with whileInView animation ---
-const ProjectGridCard = ({ project }) => {
-    return (
-        <motion.div
-            className="relative rounded-2xl overflow-hidden group shadow-md"
-            initial={{ opacity: 0, y: 20 }} // Start invisible and slightly down
-            whileInView={{ opacity: 1, y: 0 }} // Animate to visible and original position
-            viewport={{ once: true }} // Only animate once
-            transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-            <a href={project.link} target="_blank" rel="noopener noreferrer" className="block">
-                <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-105"
-                    onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/600x400/F0EEEB/333333?text=${project.title.replace(' ', '+')}`; }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-
-                <div className="absolute bottom-0 left-0 p-6 text-white w-full">
-                    <p className="text-sm opacity-80 mb-1">{project.category}</p>
-                    <h3 className="text-xl font-semibold mb-4">{project.title}</h3>
-
-                    <div
-                        className="absolute bottom-6 right-6 bg-yellow-400 text-gray-900 p-3 rounded-full 
-                                   flex items-center justify-center transform translate-y-0 group-hover:-translate-y-1 
-                                   group-hover:rotate-45 transition-all duration-300 ease-out"
-                    >
-                        <ArrowUpRight className="w-5 h-5" />
-                    </div>
-                </div>
-            </a>
-        </motion.div>
-    );
-};
-
-
-
 export default function WorkPage() {
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [direction, setDirection] = useState(0);
+    const [activeTab, setActiveTab] = useState('client'); // 'client' or 'demo'
+
+    const displayedProjects = useMemo(() => workProjects.filter(p => p.type === activeTab), [activeTab]);
+    const currentProject = displayedProjects.length > 0 ? displayedProjects[currentIndex % displayedProjects.length] : null;
+
+    const changeTab = (tabType) => {
+        if (tabType !== activeTab) {
+            setActiveTab(tabType);
+            setCurrentIndex(0);
+            setDirection(0);
+        }
+    };
+
+    const paginate = (newDirection) => {
+        if (!displayedProjects || displayedProjects.length === 0) return;
+        setDirection(newDirection);
+        const numProjects = displayedProjects.length;
+        setCurrentIndex((prevIndex) => (newDirection > 0 ? (prevIndex + 1) % numProjects : (prevIndex - 1 + numProjects) % numProjects));
+    };
+
+    const goToIndex = (index) => {
+        if (!displayedProjects || index < 0 || index >= displayedProjects.length) return;
+        setDirection(index > currentIndex ? 1 : -1);
+        setCurrentIndex(index);
+    }
+
+    const sliderVariants = {
+        enter: (direction) => ({ x: direction > 0 ? '100%' : '-100%', opacity: 0, scale: 0.95 }),
+        center: { x: 0, opacity: 1, scale: 1, transition: { duration: 0.5, ease: "easeOut" } },
+        exit: (direction) => ({ x: direction < 0 ? '100%' : '-100%', opacity: 0, scale: 0.95, transition: { duration: 0.4, ease: "easeOut" } })
+    };
+    const textVariants = {
+        enter: { opacity: 0, y: 20 },
+        center: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut", delay: 0.3 } },
+        exit: { opacity: 0, y: -20, transition: { duration: 0.3, ease: "easeIn" } }
+    };
+    const imageVariants = {
+        enter: { opacity: 0, scale: 0.9 },
+        center: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: "easeOut", delay: 0.1 } },
+        exit: { opacity: 0, scale: 0.9, transition: { duration: 0.4, ease: "easeIn" } }
+    };
+
+    const TabButton = ({ type, label }) => (
+        <button
+            onClick={() => changeTab(type)}
+            className={`relative py-2 px-5 rounded-full text-sm font-medium transition-colors duration-300 ${activeTab === type ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900'}`}
+        >
+            {activeTab === type && (
+                <motion.div layoutId="active-tab-indicator-work" className="absolute inset-0 bg-gray-200 rounded-full z-0" />
+            )}
+            <span className="relative z-10">{label}</span>
+        </button>
+    );
+
     return (
-        <section id="work" className="bg-white text-gray-900 py-16 md:py-24 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header Section */}
-                <motion.div
-                    className="text-center mb-12 md:mb-16"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
-                >
-                    <p className="text-yellow-500 font-medium text-sm mb-2">&bull; Case Studies</p>
-                    <h1 className="text-4xl md:text-6xl font-extrabold leading-tight tracking-tighter">
-                        See Our All Latest <br /> Creative Work
-                    </h1>
-                    <motion.a
-                        href="#"
-                        className="mt-8 inline-flex items-center bg-yellow-400 text-gray-900 font-semibold py-3 px-6 rounded-full transition-all duration-300 ease-in-out hover:bg-yellow-500 hover:shadow-lg"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
-                        View All
-                        <ArrowUpRight className="w-5 h-5 ml-2" />
-                    </motion.a>
+        <section className="bg-white text-gray-900 min-h-screen flex flex-col justify-center py-16 md:py-24 overflow-hidden relative">
+            <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center">
+                <motion.div className="text-center mb-8 md:mb-12" initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }}>
+                    <p className="text-emerald-600 font-semibold text-sm mb-2 uppercase tracking-widest">Featured Work</p>
+                    <h1 className="text-4xl md:text-5xl font-extrabold leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600">Project Showcase</h1>
                 </motion.div>
 
-                {/* Project Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-                    {workProjects.map((project, index) => (
-                        <ProjectGridCard key={index} project={project} />
+                <div className="flex justify-center space-x-3 bg-gray-100 border border-gray-200 p-1.5 rounded-full mb-8 md:mb-10">
+                    <TabButton type="client" label="Client Projects" />
+                    <TabButton type="demo" label="Demo Projects" />
+                </div>
+
+                <div className="relative w-full aspect-[16/10] md:aspect-[16/8] max-h-[65vh] overflow-hidden rounded-2xl bg-gray-50 border border-gray-200 shadow-xl">
+                    <AnimatePresence initial={false} custom={direction}>
+                        {currentProject ? (
+                            <motion.div key={`${activeTab}-${currentIndex}`} custom={direction} variants={sliderVariants} initial="enter" animate="center" exit="exit" className="absolute inset-0 grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch">
+                                <div className="flex flex-col justify-center p-6 md:p-10 lg:p-12 order-2 md:order-1">
+                                    <motion.p variants={textVariants} className="text-sm text-emerald-600 font-medium mb-2">{currentProject.category}</motion.p>
+                                    <motion.h2 variants={textVariants} transition={{ delay: 0.1 }} className="text-3xl lg:text-4xl font-bold mb-4 text-gray-900">{currentProject.title}</motion.h2>
+                                    <motion.p variants={textVariants} transition={{ delay: 0.2 }} className="text-gray-600 mb-6 lg:mb-8 text-base lg:text-lg flex-grow max-h-40 overflow-y-auto pr-2 scrollbar-thin-light">{currentProject.description}</motion.p>
+                                    <motion.a
+                                        variants={textVariants}
+                                        transition={{ delay: 0.3 }}
+                                        href={currentProject.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`inline-flex items-center bg-gray-900 text-white font-semibold py-2.5 px-6 rounded-full transition-colors duration-300 hover:bg-gray-700 self-start text-sm md:text-base ${currentProject.link === '#' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        whileHover={currentProject.link !== '#' ? { scale: 1.05 } : {}}
+                                        whileTap={currentProject.link !== '#' ? { scale: 0.95 } : {}}
+                                        onClick={(e) => currentProject.link === '#' && e.preventDefault()}
+                                    >
+                                        Visit Site <ArrowUpRight className="w-4 h-4 ml-1.5" />
+                                    </motion.a>
+                                </div>
+
+                                <motion.div variants={imageVariants} className="overflow-hidden order-1 md:order-2 h-64 md:h-auto">
+                                    <img src={currentProject.image} alt={currentProject.title} className="w-full h-full object-cover" />
+                                </motion.div>
+                            </motion.div>
+                        ) : (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <p className="text-gray-500">No projects found in this category.</p>
+                            </div>
+                        )}
+                    </AnimatePresence>
+
+                    <button className="absolute top-1/2 left-2 md:left-4 -translate-y-1/2 z-20 bg-white/50 text-gray-900 p-2 rounded-full hover:bg-white/80 transition-colors backdrop-blur-sm shadow-md" onClick={() => paginate(-1)} disabled={displayedProjects.length <= 1}><ArrowLeft size={20} /></button>
+                    <button className="absolute top-1/2 right-2 md:right-4 -translate-y-1/2 z-20 bg-white/50 text-gray-900 p-2 rounded-full hover:bg-white/80 transition-colors backdrop-blur-sm shadow-md" onClick={() => paginate(1)} disabled={displayedProjects.length <= 1}><ArrowRight size={20} /></button>
+                </div>
+
+                <div className="flex justify-center gap-2 mt-6">
+                    {displayedProjects.map((_, index) => (
+                        <button key={index} onClick={() => goToIndex(index)} className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${currentIndex === index ? 'bg-emerald-500 scale-125' : 'bg-gray-300 hover:bg-gray-400'}`} />
                     ))}
                 </div>
             </div>
