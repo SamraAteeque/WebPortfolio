@@ -1,15 +1,67 @@
 @import "tailwindcss";
 
-html, body {
-  scroll-behavior: smooth;
+@theme {
+  --color-brand-bg: #0A0A0A;
+  --color-brand-surface: #171717;
+}
+
+html,
+body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  background-color: #0A0A0A;
+  color: #e5e5e5;
 }
 
 * {
   box-sizing: border-box;
 }
-section, div {
+
+/* Custom scrollbar for a premium feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0A0A0A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+  /* emerald-500 */
+}
+
+/* Custom Selection */
+::selection {
+  background-color: rgba(16, 185, 129, 0.3);
+  /* emerald-500 with opacity */
+  color: #ffffff;
+}
+
+/* Lenis recommended base styles */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
   overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
 }

@@ -1,302 +1,185 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Menu, X, Code, Briefcase, Zap, Target } from 'lucide-react'; // Updated icons
+import { ArrowUpRight, Menu, X, Terminal, Code } from 'lucide-react';
 
-// --- Custom Cursor Component ---
-const CustomCursor = () => {
-    const [position, setPosition] = useState({ x: 0, y: 0 });
-    const [isHovering, setIsHovering] = useState(false);
-
-    useEffect(() => {
-        const moveCursor = (e) => {
-            setPosition({ x: e.clientX, y: e.clientY });
-            const target = e.target;
-            if (target.closest("a, button, [role='button']") || window.getComputedStyle(target).getPropertyValue('cursor') === 'pointer') {
-                setIsHovering(true);
-            } else {
-                setIsHovering(false);
-            }
-        };
-        window.addEventListener('mousemove', moveCursor);
-        return () => window.removeEventListener('mousemove', moveCursor);
-    }, []);
-
-    const cursorVariants = {
-        default: {
-            width: 12, height: 12, backgroundColor: "rgba(255, 255, 255, 0.8)", // Brighter default
-            border: "none", x: position.x - 6, y: position.y - 6, mixBlendMode: 'difference'
-        },
-        hover: {
-            width: 64, height: 64, backgroundColor: "rgba(52, 211, 153, 0.1)", border: "1px solid rgba(52, 211, 153, 0.3)",
-            x: position.x - 32, y: position.y - 32, mixBlendMode: 'normal' // Normal blend mode on hover
-        }
-    };
-
-    return (
-        <motion.div
-            className="fixed top-0 left-0 rounded-full pointer-events-none z-[9999] hidden md:block"
-            variants={cursorVariants}
-            animate={isHovering ? "hover" : "default"}
-            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-        />
-    );
-};
-
-// --- Word Animation Component ---
-const AnimatedWords = ({ text, stagger = 0.03, delay = 0, className = "" }) => {
-    const words = text.split(" ");
-    const container = { hidden: { opacity: 0 }, visible: (i = 1) => ({ opacity: 1, transition: { staggerChildren: stagger, delayChildren: delay * i } }) };
-    const child = { visible: { opacity: 1, y: 0, transition: { type: "spring", damping: 12, stiffness: 100 } }, hidden: { opacity: 0, y: 20, transition: { type: "spring", damping: 12, stiffness: 100 } } };
-    return ( <motion.div className={className} variants={container} initial="hidden" animate="visible" > {words.map((word, index) => ( <motion.span variants={child} key={index} className="inline-block mr-[0.25em] mb-1"> {word} </motion.span> ))} </motion.div> );
-};
-
-// --- Main App Component ---
-export default function App() {
-  return (
-    <div className="bg-[#121212] min-h-screen text-gray-200 font-sans antialiased md:cursor-none"> {/* Darker Base BG */}
-      <CustomCursor />
-      <HeroSection />
-      <BrandsMarquee /> {/* Renamed BrandsSection */}
-    </div>
-  );
-}
-
-// --- Navigation Component ---
+// --- Navbar (Sleek Floating Pill) ---
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const navLinks = ["Home","About", "Services", "Work", "Contact"];
+  const [scrolled, setScrolled] = useState(false);
+  const navLinks = ["About", "Services", "Work", "Testimonials", "Contact"];
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <nav className="absolute top-0 left-0 right-0 z-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <motion.a href="#" className="text-2xl font-bold tracking-tighter text-white" whileHover={{ scale: 1.05 }}>
+    <motion.nav
+      initial={{ y: -100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl transition-all duration-300 ${scrolled ? "bg-[#0A0A0A]/70 backdrop-blur-xl border border-white/10 shadow-2xl py-3 rounded-full" : "bg-transparent py-4 border-transparent"
+        }`}
+    >
+      <div className="px-6 flex justify-between items-center">
+        <a href="#home" className="text-xl font-bold tracking-tighter text-white flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
           Samrateq
-        </motion.a>
-        
+        </a>
+
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
-            <motion.a key={link} href={`#${link.toLowerCase()}`} className="text-gray-400 relative group" whileHover={{ color: '#ffffff' }} transition={{ duration: 0.3 }}>
-              {link}
-              {/* Underline animation */}
-              <span className="absolute bottom-0 left-0 h-0.5 bg-emerald-500 w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-            </motion.a>
-          ))}
-        </div>
-        
-        <div className="hidden md:flex items-center gap-4">
-            <motion.a
-                href="#contact"
-                className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white px-6 py-2.5 rounded-full font-semibold flex items-center gap-2 group shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 transition-shadow duration-300" // Gradient Button
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-            >
-              Get in touch
-              <motion.div variants={{ rest: { rotate: 0 }, hover: { rotate: -45 } }} initial="rest" whileHover="hover" transition={{ duration: 0.3 }}>
-                <ArrowUpRight className="w-5 h-5 transition-transform" />
-              </motion.div>
-            </motion.a>
-        </div>
-        
-        <div className="md:hidden">
-          <button onClick={() => setIsOpen(!isOpen)} className="text-white z-50 p-2 -mr-2"> {/* Added padding */}
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-      </div>
-      
-      <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-          transition={{ duration: 0.3, ease: 'easeInOut' }}
-          className="md:hidden mt-4 bg-gray-900/90 backdrop-blur-md rounded-lg p-4 flex flex-col items-center gap-2 absolute top-16 left-4 right-4 shadow-xl" // Positioned absolutely
-        >
-          {navLinks.map((link) => (
-            <a key={link} href={`#${link.toLowerCase()}`} onClick={() => setIsOpen(false)} className="text-gray-300 hover:text-white text-lg w-full text-center py-3 rounded-md hover:bg-white/5 transition-colors">
+            <a key={link} href={`#${link.toLowerCase()}`} className="text-sm font-medium text-gray-400 hover:text-white transition-colors">
               {link}
             </a>
           ))}
-          <a href="#contact" onClick={() => setIsOpen(false)} className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white px-6 py-3 rounded-full font-semibold w-full text-center mt-3 flex items-center justify-center gap-2">
-            Get in touch <ArrowUpRight className="w-5 h-5" />
+        </div>
+
+        <div className="hidden md:block">
+          <a
+            href="#contact"
+            className="text-sm font-medium bg-white text-black px-5 py-2 rounded-full hover:bg-gray-200 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)]"
+          >
+            Get in touch
           </a>
-        </motion.div>
-      )}
+        </div>
+
+        <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-white p-2">
+          {isOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden absolute top-full left-0 w-full mt-2 bg-[#121212]/95 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden flex flex-col px-4 py-2 shadow-2xl"
+          >
+            {navLinks.map((link) => (
+              <a key={link} href={`#${link.toLowerCase()}`} onClick={() => setIsOpen(false)} className="text-gray-300 hover:text-white text-base font-medium py-3 border-b border-white/5 last:border-0">
+                {link}
+              </a>
+            ))}
+            <a href="#contact" onClick={() => setIsOpen(false)} className="mt-4 mb-2 text-center text-sm font-medium bg-white text-black px-5 py-2.5 rounded-full hover:bg-gray-200 transition-colors">
+              Get in touch
+            </a>
+          </motion.div>
+        )}
       </AnimatePresence>
-    </nav>
+    </motion.nav>
   );
 };
 
-
-// --- ✨ REDESIGNED Hero Section Component ---
+// --- Center-Aligned Premium Hero ---
 const HeroSection = () => {
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.3 } }
-  };
-
-  const itemVariants = {
-    hidden: { y: 30, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: [0.2, 0.65, 0.3, 0.9] } }
-  };
-
-  // Variants for the geometric shapes
-  const shapeVariants = (delay = 0) => ({
-    initial: { opacity: 0, scale: 0.5 },
-    animate: {
-      opacity: [0, 0.5, 0.3, 0.5, 0], // Fade in/out
-      scale: [0.5, 1, 1.1, 1, 0.5],
-      rotate: [0, 180, 360],
-      transition: {
-        duration: 15 + Math.random() * 10, // Slower, varied duration
-        ease: "linear",
-        repeat: Infinity,
-        delay: delay + Math.random() * 3
-      }
-    },
-    whileInView: {
-         opacity: [0, 0.4], scale: [0.5, 1],
-         transition: { duration: 1, ease: "easeOut", delay: 0.8 + delay} // Stagger appearance
-    }
-  });
-
-
   return (
-    <section id="home" className="relative min-h-screen overflow-hidden bg-[#121212] flex items-center"> {/* Darker BG */}
-        {/* Animated Gradient Mesh Background */}
-         <motion.div
-            className="absolute inset-0 z-0 opacity-40" // Adjust opacity as needed
-            animate={{
-                 backgroundImage: [
-                    "radial-gradient(circle at 10% 20%, #16a085 0%, transparent 40%), radial-gradient(circle at 80% 30%, #2980b9 0%, transparent 40%), radial-gradient(circle at 50% 80%, #8e44ad 0%, transparent 40%)",
-                    "radial-gradient(circle at 20% 50%, #1abc9c 0%, transparent 40%), radial-gradient(circle at 70% 70%, #3498db 0%, transparent 40%), radial-gradient(circle at 30% 10%, #9b59b6 0%, transparent 40%)",
-                    "radial-gradient(circle at 50% 15%, #27ae60 0%, transparent 40%), radial-gradient(circle at 15% 75%, #2c3e50 0%, transparent 40%), radial-gradient(circle at 85% 60%, #f39c12 0%, transparent 40%)",
-                    "radial-gradient(circle at 10% 20%, #16a085 0%, transparent 40%), radial-gradient(circle at 80% 30%, #2980b9 0%, transparent 40%), radial-gradient(circle at 50% 80%, #8e44ad 0%, transparent 40%)", // Loop back
-                 ]
-            }}
-            transition={{
-                duration: 20, // Duration for one cycle
-                ease: "linear",
-                repeat: Infinity
-            }}
-         />
+    <section id="home" className="relative min-h-screen flex flex-col justify-center items-center text-center px-4 pt-20 overflow-hidden">
+      {/* Premium Dark Gradients & Grid */}
+      <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-emerald-500/15 rounded-full blur-[120px] opacity-60 pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_20%,transparent_100%)] pointer-events-none" />
 
-        <Navbar />
+      <Navbar />
 
+      <motion.div
+        className="relative z-10 max-w-4xl mx-auto flex flex-col items-center"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+      >
         <motion.div
-            className="relative z-10 max-w-7xl w-full mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center" // Increased gap
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold tracking-wide mb-8 backdrop-blur-sm shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+          whileHover={{ scale: 1.05 }}
         >
-            {/* Left Content */}
-            <div className="flex flex-col gap-5"> {/* Increased gap */}
-                <motion.p variants={itemVariants} className="text-emerald-400 font-medium tracking-wider">SAMRA ATEEQUE</motion.p>
-                {/* Animated Headline */}
-                 <AnimatedWords
-                    text="Full Stack Developer"
-                    stagger={0.05} // Stagger letters/words
-                    delay={0.1} // Start slightly after container
-                    className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-none text-white" // Larger text
-                 />
-
-                <motion.p variants={itemVariants} className="text-lg md:text-xl text-gray-400 max-w-lg leading-relaxed mt-2">
-                    Crafting elegant, performant, and visually stunning web experiences from concept to deployment using the MERN stack and modern animation libraries.
-                </motion.p>
-                <motion.div variants={itemVariants} className="mt-6">
-                    <motion.a
-                        href="#contact"
-                         className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-blue-500 text-white px-8 py-3.5 rounded-full font-semibold group shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 transition-all duration-300 transform hover:-translate-y-1"
-                         whileHover={{ scale: 1.05, boxShadow:"0 12px 25px -5px rgba(52, 211, 153, 0.3)" }}
-                         whileTap={{ scale: 0.95 }}
-                         transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                    >
-                        Let's Collaborate
-                        <motion.div variants={{ rest: { rotate: 0 }, hover: { rotate: -45 } }} initial="rest" whileHover="hover" transition={{ duration: 0.3 }}>
-                            <ArrowUpRight className="w-5 h-5 transition-transform" />
-                         </motion.div>
-                    </motion.a>
-                </motion.div>
-            </div>
-
-             {/* Right Content - Abstract Shapes */}
-             <div className="relative h-80 lg:h-96 hidden lg:flex items-center justify-center">
-                 {/* Shape 1: Cube */}
-                 <motion.div
-                    className="absolute w-24 h-24 bg-gradient-to-br from-emerald-500/30 to-blue-500/30 border border-white/10 backdrop-blur-sm rounded-lg"
-                    variants={shapeVariants(0)} initial="initial" whileInView="whileInView" animate="animate"
-                    style={{ top: '10%', left: '15%'}}
-                 />
-                  {/* Shape 2: Sphere */}
-                 <motion.div
-                    className="absolute w-32 h-32 bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-white/5 backdrop-blur-md rounded-full"
-                     variants={shapeVariants(0.5)} initial="initial" whileInView="whileInView" animate="animate"
-                    style={{ bottom: '15%', right: '20%'}}
-                 />
-                 {/* Shape 3: Rounded Square */}
-                  <motion.div
-                    className="absolute w-20 h-20 bg-gradient-to-br from-yellow-500/30 to-orange-500/30 border border-white/10 backdrop-blur-sm rounded-xl"
-                     variants={shapeVariants(1)} initial="initial" whileInView="whileInView" animate="animate"
-                     style={{ top: '40%', right: '5%'}}
-                 />
-                 {/* Center Shape */}
-                  <motion.div
-                    className="absolute w-40 h-40 bg-gradient-to-br from-white/5 to-white/10 border border-white/10 backdrop-blur-lg rounded-2xl" // More prominent center shape
-                     variants={shapeVariants(0.2)} initial="initial" whileInView="whileInView" animate="animate"
-                     style={{ top: '50%', left: '50%', translateX: '-50%', translateY: '-50%'}} // Center precisely
-                 />
-            </div>
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          AVAILABLE FOR FREELANCE
         </motion.div>
+
+        <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-medium tracking-tight text-white leading-[1.1] mb-6 drop-shadow-2xl">
+          Crafting Digital<br />
+          <span className="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-300">
+            Masterpieces.
+          </span>
+        </h1>
+
+        <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed mb-10 font-light">
+          I build high-performance, visually stunning web applications using the MERN stack and modern animation architectures.
+        </p>
+
+        <div className="flex flex-col sm:flex-row items-center gap-5">
+          <a
+            href="#work"
+            className="group relative inline-flex items-center justify-center px-8 py-3.5 text-sm font-semibold text-black bg-white rounded-full overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(255,255,255,0.15)]"
+          >
+            <span className="relative z-10 flex items-center gap-2">
+              Explore Work
+              <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </span>
+          </a>
+          <a
+            href="#contact"
+            className="group inline-flex items-center justify-center px-8 py-3.5 text-sm font-semibold text-white bg-white/5 border border-white/10 rounded-full hover:bg-white/10 hover:border-white/20 transition-all hover:scale-105 active:scale-95 backdrop-blur-sm"
+          >
+            Let's Collaborate
+          </a>
+        </div>
+      </motion.div>
+
+      {/* Floating Ambient Elements */}
+      <motion.div
+        className="hidden md:flex absolute bottom-[15%] left-[10%] w-16 h-16 rounded-2xl bg-[#111] border border-white/5 shadow-2xl items-center justify-center text-gray-500"
+        animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <Code size={20} />
+      </motion.div>
+      <motion.div
+        className="hidden md:flex absolute top-[25%] right-[15%] w-14 h-14 rounded-full bg-emerald-900/20 border border-emerald-500/20 shadow-2xl items-center justify-center text-emerald-500 backdrop-blur-md"
+        animate={{ y: [0, 25, 0], rotate: [0, -10, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+      >
+        <Terminal size={18} />
+      </motion.div>
     </section>
   );
 };
 
-// --- ✨ REDESIGNED Brands Marquee ---
+// --- Refined Marquee ---
 const BrandsMarquee = () => {
-    const brands = [
-        "Portfolio Projects", "Interior Designer Website", "Wedding Planner Website", "Animated UIs",
-        "E-Commerce Solutions", "MERN Stack Apps", "React Development", "Client Collaborations" // Added more items
-    ];
-
-    // Duplicate the array for seamless looping
-    const extendedBrands = [...brands, ...brands];
-
-    const marqueeVariants = {
-        animate: {
-            x: ['0%', '-100%'], // Move from start to end
-            transition: {
-                x: {
-                    repeat: Infinity,
-                    repeatType: "loop",
-                    duration: 30, // Adjust duration for speed
-                    ease: "linear",
-                },
-            },
-        },
-    };
-
-    return (
-        // Changed BG, removed rounded top, added padding
-        <div className="bg-[#121212] text-gray-600 py-10 md:py-16 overflow-hidden border-t border-b border-white/10 relative">
-             {/* Gradient Fades */}
-             <div className="absolute top-0 bottom-0 left-0 w-16 bg-gradient-to-r from-[#121212] via-[#121212]/80 to-transparent z-10"></div>
-             <div className="absolute top-0 bottom-0 right-0 w-16 bg-gradient-to-l from-[#121212] via-[#121212]/80 to-transparent z-10"></div>
-
-            <motion.div
-                className="flex whitespace-nowrap"
-                variants={marqueeVariants}
-                animate="animate"
-            >
-                {extendedBrands.map((brand, index) => (
-                    <div key={index} className="flex items-center mx-6 md:mx-10 flex-shrink-0">
-                         {/* Simple text or add icons later */}
-                         <span className="font-medium text-lg md:text-xl text-gray-500 italic">{brand}</span>
-                         {/* Separator */}
-                         <span className="mx-6 md:mx-10 text-gray-700">&bull;</span>
-                    </div>
-                ))}
-            </motion.div>
-        </div>
-    );
+  const brands = [
+    "React Architecture", "Full-Stack MERN", "Creative Development", "System Design",
+    "Interactive Experiences", "GSAP Animations", "Tailwind CSS Focus", "Scalable Interfaces"
+  ];
+  return (
+    <div className="bg-[#0A0A0A] border-y border-white/5 py-8 overflow-hidden relative">
+      <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#0A0A0A] to-transparent z-10" />
+      <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[#0A0A0A] to-transparent z-10" />
+      <motion.div
+        className="flex whitespace-nowrap min-w-full"
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
+      >
+        {[...brands, ...brands, ...brands].map((brand, index) => (
+          <div key={index} className="flex items-center mx-8 shrink-0">
+            <span className="font-mono tracking-widest text-xs md:text-sm text-gray-500 uppercase">{brand}</span>
+            <span className="mx-8 text-emerald-500/20 text-xs">✦</span>
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
 };
+
+export default function Home() {
+  return (
+    <>
+      <HeroSection />
+      <BrandsMarquee />
+    </>
+  );
+}

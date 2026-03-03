@@ -1,49 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, Star, X, ArrowLeft, ArrowRight } from 'lucide-react';
 
-// Using placeholder for Avatar as local paths might not work
-// Replace with: import Avatar from '../assets/Avatar.jpg'; if your setup allows
-const Avatar_placeholder = 'https://placehold.co/48x48/333333/FFFFFF?text=A';
-
-// --- Custom Cursor Component ---
-const CustomCursor = () => {
-    const [position, setPosition] = useState({ x: 0, y: 0 });
-    const [isHovering, setIsHovering] = useState(false);
-    const [isTextHovering, setIsTextHovering] = useState(false);
-
-    useEffect(() => {
-        const moveCursor = (e) => {
-            setPosition({ x: e.clientX, y: e.clientY });
-            const target = e.target;
-            const isPointer = target.closest("a, button, [role='button']") || window.getComputedStyle(target).getPropertyValue('cursor') === 'pointer';
-            setIsHovering(isPointer);
-            const isText = ['P','H1','H2','H3','H4','SPAN', 'BLOCKQUOTE'].includes(target.tagName);
-            setIsTextHovering(isText && !isPointer);
-        };
-        window.addEventListener('mousemove', moveCursor);
-        return () => window.removeEventListener('mousemove', moveCursor);
-    }, []);
-
-    const cursorVariants = {
-        default: { width: 32, height: 32, backgroundColor: "rgba(0,0,0,0.1)", border: "1px solid rgba(0,0,0,0.2)", x: position.x - 16, y: position.y - 16 }, // Adjusted for light theme potentially
-        hover: { width: 80, height: 80, backgroundColor: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.3)", x: position.x - 40, y: position.y - 40 },
-        text: { width: 8, height: 80, borderRadius: "4px", backgroundColor: "rgba(52,211,153,0.5)", border: "none", x: position.x - 4, y: position.y - 40 }
-    };
-
-    let currentVariant = "default";
-    if (isHovering) currentVariant = "hover";
-    if (isTextHovering) currentVariant = "text";
-
-    return (
-        <motion.div
-            className="fixed top-0 left-0 rounded-full pointer-events-none z-[9999] hidden md:block"
-            variants={cursorVariants}
-            animate={currentVariant}
-            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-        />
-    );
-};
+const Avatar_placeholder = 'https://placehold.co/48x48/1A1A1A/FFFFFF?text=A';
 
 // --- Initial Testimonials ---
 const initialTestimonials = [
@@ -53,60 +12,64 @@ const initialTestimonials = [
     { id: 4, quote: "Working with Samra was a breeze. Professional, timely, and the final product exceeded our expectations. The animations are fantastic!", name: "Ravi Singh", company: "Marketing Manager", image: Avatar_placeholder, rating: 5 }
 ];
 
-// --- Main App Component ---
-export default function App() {
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [testimonials, setTestimonials] = useState(initialTestimonials);
-  
-  const openReviewModal = () => setIsReviewModalOpen(true);
-  const closeReviewModal = () => setIsReviewModalOpen(false);
+export default function Testimonial() {
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+    const [testimonials, setTestimonials] = useState(initialTestimonials);
 
-  const handleAddReview = (newReview) => {
-    const reviewWithId = { ...newReview, id: Date.now(), image: Avatar_placeholder };
-    setTestimonials(prevTestimonials => [reviewWithId, ...prevTestimonials]);
-  };
+    const openReviewModal = () => setIsReviewModalOpen(true);
+    const closeReviewModal = () => setIsReviewModalOpen(false);
 
-  return (
-    // Keep overall bg dark, ReviewTriggerSection will override it
-    <div className="bg-[#121212] min-h-screen text-gray-200 font-sans antialiased md:cursor-none">
-      <CustomCursor />
-      <TestimonialsCarousel testimonials={testimonials} />
-      <ReviewTriggerSection onButtonClick={openReviewModal} />
-      <ReviewModal isOpen={isReviewModalOpen} onClose={closeReviewModal} onReviewSubmit={handleAddReview} />
-    </div>
-  );
+    const handleAddReview = (newReview) => {
+        const reviewWithId = { ...newReview, id: Date.now(), image: Avatar_placeholder };
+        setTestimonials(prevTestimonials => [reviewWithId, ...prevTestimonials]);
+    };
+
+    return (
+        <>
+            <TestimonialsCarousel testimonials={testimonials} />
+            <ReviewTriggerSection onButtonClick={openReviewModal} />
+            <ReviewModal isOpen={isReviewModalOpen} onClose={closeReviewModal} onReviewSubmit={handleAddReview} />
+        </>
+    );
 }
 
 // --- Star Rating Component ---
 const StarRating = ({ rating, className = "" }) => (
-    <div className={`flex items-center ${className}`}>
+    <div className={`flex items-center gap-1 ${className}`}>
         {[...Array(5)].map((_, i) => (
-            <Star key={i} className={`w-4 h-4 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-500'}`} />
+            <Star key={i} className={`w-4 h-4 ${i < rating ? 'text-emerald-400 fill-emerald-400' : 'text-white/10'}`} />
         ))}
     </div>
 );
 
 // --- Testimonial Card Component (for Carousel) ---
 const TestimonialCard = ({ testimonial, isActive }) => {
-     const cardHover = {
-        hover: { boxShadow: "0px 15px 40px -10px rgba(52, 211, 153, 0.2)", transition: { type: 'spring', stiffness: 300, damping: 20 } }
+    const cardHover = {
+        hover: { boxShadow: "0px 15px 40px -10px rgba(16, 185, 129, 0.15)", transition: { type: 'spring', stiffness: 300, damping: 20 } }
     };
     if (!testimonial) return null;
     return (
         <motion.div
-            className={`bg-[#1f1f1f] border border-white/10 rounded-2xl shadow-lg p-6 md:p-8 flex flex-col relative overflow-hidden transition-all duration-300 ease-in-out h-full ${isActive ? 'opacity-100 scale-100' : 'opacity-50 scale-90 md:scale-85'}`}
+            className={`bg-[#111] border border-white/5 rounded-3xl shadow-2xl p-8 md:p-10 flex flex-col relative overflow-hidden transition-all duration-500 ease-[0.16_1_0.3_1] h-full ${isActive ? 'opacity-100 scale-100 border-white/10 bg-white/5 backdrop-blur-xl' : 'opacity-40 scale-90 md:scale-95'}`}
             variants={isActive ? cardHover : {}}
             whileHover={isActive ? "hover" : ""}
         >
-            <span className="absolute top-4 right-6 text-7xl md:text-8xl text-white/5 font-serif z-0" aria-hidden="true">”</span>
-             <div className="relative z-10 flex flex-col h-full">
+            <span className="absolute -top-4 -right-2 text-[10rem] text-white/5 font-serif z-0 leading-none select-none" aria-hidden="true">”</span>
+
+            <div className="relative z-10 flex flex-col h-full">
                 <StarRating rating={testimonial.rating} />
-                <blockquote className="mt-4 text-gray-300 italic flex-grow text-base md:text-lg leading-relaxed">"{testimonial.quote}"</blockquote>
-                <div className="flex items-center mt-6 pt-4 border-t border-white/10">
-                    <img src={testimonial.image} alt={testimonial.name} className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover mr-4 border-2 border-emerald-500/50" onError={(e)=>{e.target.onerror=null;e.target.src=`https://placehold.co/48x48/333333/FFFFFF?text=${testimonial.name ? testimonial.name.charAt(0) : '?'}`}}/>
+                <blockquote className="mt-6 text-gray-300 font-light flex-grow text-lg md:text-xl leading-relaxed">"{testimonial.quote}"</blockquote>
+
+                <div className="flex items-center mt-8 pt-6 border-t border-white/10">
+                    <img
+                        src={testimonial.image}
+                        alt={testimonial.name}
+                        className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover mr-4 border border-white/10 shadow-lg"
+                        onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/48x48/1A1A1A/FFFFFF?text=${testimonial.name ? testimonial.name.charAt(0) : '?'}` }}
+                    />
                     <div>
-                        <h4 className="font-bold text-white text-sm md:text-base">{testimonial.name || 'Anonymous'}</h4>
-                        <p className="text-xs md:text-sm text-gray-400">{testimonial.company || 'Reviewer'}</p>
+                        <h4 className="font-semibold text-white text-base md:text-lg tracking-wide">{testimonial.name || 'Anonymous'}</h4>
+                        <p className="text-xs md:text-sm text-emerald-500 font-medium tracking-wide uppercase mt-0.5">{testimonial.company || 'Reviewer'}</p>
                     </div>
                 </div>
             </div>
@@ -114,7 +77,7 @@ const TestimonialCard = ({ testimonial, isActive }) => {
     );
 };
 
-// --- Testimonials Carousel Component (No functional changes) ---
+// --- Testimonials Carousel Component ---
 const TestimonialsCarousel = ({ testimonials }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [direction, setDirection] = useState(0);
@@ -136,89 +99,108 @@ const TestimonialsCarousel = ({ testimonials }) => {
     const nextTestimonial = getTestimonial(nextIndex);
 
     const cardVariants = {
-        enter: (direction) => ({ x: direction > 0 ? '150%' : '-150%', opacity: 0, scale: 0.7, zIndex: 0 }),
-        center: { x: 0, opacity: 1, scale: 1, zIndex: 1, transition: { duration: 0.5, ease: "easeOut" } },
-        sideLeft: { x: '-70%', opacity: 0.4, scale: 0.8, zIndex: 0, transition: { duration: 0.5, ease: "easeOut" } },
-        sideRight: { x: '70%', opacity: 0.4, scale: 0.8, zIndex: 0, transition: { duration: 0.5, ease: "easeOut" } },
-        exit: (direction) => ({ x: direction < 0 ? '150%' : '-150%', opacity: 0, scale: 0.7, zIndex: 0, transition: { duration: 0.4, ease: "easeOut" } })
+        enter: (direction) => ({ x: direction > 0 ? '150%' : '-150%', opacity: 0, scale: 0.8, zIndex: 0 }),
+        center: { x: 0, opacity: 1, scale: 1, zIndex: 1, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
+        sideLeft: { x: '-75%', opacity: 0.4, scale: 0.85, zIndex: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
+        sideRight: { x: '75%', opacity: 0.4, scale: 0.85, zIndex: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
+        exit: (direction) => ({ x: direction < 0 ? '150%' : '-150%', opacity: 0, scale: 0.8, zIndex: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } })
     };
 
     return (
-        <section id="testimonials" className="bg-[#121212] text-white py-20 md:py-32 overflow-hidden relative">
-            <div className="absolute inset-0 z-0 opacity-30">
-                <div className="absolute top-1/4 left-1/4 w-1/2 h-1/2 bg-gradient-radial from-emerald-900/40 via-transparent to-transparent blur-3xl rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+        <section id="testimonials" className="bg-[#0A0A0A] text-white py-24 md:py-32 overflow-hidden relative border-t border-white/5">
+            <div className="absolute inset-0 z-0 opacity-40">
+                <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-emerald-900/10 blur-[150px] rounded-full -translate-x-1/2 -translate-y-1/2 mix-blend-screen pointer-events-none"></div>
             </div>
-            <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
-                 <motion.div className="text-center mb-12 md:mb-16" initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.5 }} transition={{ duration: 0.8, ease: "easeOut" }}>
-                    <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">Kind Words From Clients</h2>
-                    <p className="mt-4 text-lg text-gray-400 max-w-2xl mx-auto">See what others have to say about my work and collaboration.</p>
+
+            <div className="max-w-[90rem] mx-auto px-4 md:px-8 relative z-10">
+                <motion.div className="text-center mb-16 md:mb-24" initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, ease: "easeOut" }}>
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-emerald-400 text-xs font-semibold tracking-widest uppercase mb-4 backdrop-blur-sm">
+                        Testimonials
+                    </div>
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-white leading-tight">
+                        Client <span className="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">Perspectives.</span>
+                    </h2>
                 </motion.div>
-                <div className="relative h-[450px] md:h-[400px] flex items-center justify-center">
-                    <button className="absolute left-0 md:-left-8 top-1/2 -translate-y-1/2 z-20 bg-white/5 text-white p-2 rounded-full hover:bg-white/10 transition-colors backdrop-blur-sm disabled:opacity-30 disabled:cursor-not-allowed" onClick={() => paginate(-1)} disabled={numTestimonials <= 1}><ArrowLeft size={24} /></button>
-                    <button className="absolute right-0 md:-right-8 top-1/2 -translate-y-1/2 z-20 bg-white/5 text-white p-2 rounded-full hover:bg-white/10 transition-colors backdrop-blur-sm disabled:opacity-30 disabled:cursor-not-allowed" onClick={() => paginate(1)} disabled={numTestimonials <= 1}><ArrowRight size={24} /></button>
+
+                <div className="relative h-[480px] md:h-[420px] flex items-center justify-center">
+                    <button className="absolute left-2 md:left-12 top-1/2 -translate-y-1/2 z-20 bg-white/5 text-white p-3.5 rounded-full hover:bg-white/10 transition-colors backdrop-blur-xl border border-white/10 shadow-2xl disabled:opacity-30 disabled:cursor-not-allowed hover:scale-110 active:scale-95" onClick={() => paginate(-1)} disabled={numTestimonials <= 1}><ArrowLeft size={20} /></button>
+                    <button className="absolute right-2 md:right-12 top-1/2 -translate-y-1/2 z-20 bg-white/5 text-white p-3.5 rounded-full hover:bg-white/10 transition-colors backdrop-blur-xl border border-white/10 shadow-2xl disabled:opacity-30 disabled:cursor-not-allowed hover:scale-110 active:scale-95" onClick={() => paginate(1)} disabled={numTestimonials <= 1}><ArrowRight size={20} /></button>
+
                     {numTestimonials > 0 ? (
                         <div className="absolute inset-0 flex items-center justify-center">
-                             <AnimatePresence initial={false} custom={direction}>
-                                {numTestimonials > 1 && prevTestimonial && (<motion.div key={`prev-${prevTestimonial.id}`} custom={direction} variants={cardVariants} initial="enter" animate="sideLeft" exit="exit" className="absolute w-[80%] md:w-[65%] lg:w-[50%]" style={{ originX: 0.5, originY: 0.5 }}><TestimonialCard testimonial={prevTestimonial} isActive={false} /></motion.div>)}
-                                 {currentTestimonial && (<motion.div key={`current-${currentTestimonial.id}`} custom={direction} variants={cardVariants} initial="enter" animate="center" exit="exit" className="absolute w-[90%] md:w-[75%] lg:w-[60%]" style={{ originX: 0.5, originY: 0.5 }}><TestimonialCard testimonial={currentTestimonial} isActive={true} /></motion.div>)}
-                                 {numTestimonials > 1 && nextTestimonial && (<motion.div key={`next-${nextTestimonial.id}`} custom={direction} variants={cardVariants} initial="enter" animate="sideRight" exit="exit" className="absolute w-[80%] md:w-[65%] lg:w-[50%]" style={{ originX: 0.5, originY: 0.5 }}><TestimonialCard testimonial={nextTestimonial} isActive={false} /></motion.div>)}
-                             </AnimatePresence>
+                            <AnimatePresence initial={false} custom={direction}>
+                                {numTestimonials > 1 && prevTestimonial && (<motion.div key={`prev-${prevTestimonial.id}`} custom={direction} variants={cardVariants} initial="enter" animate="sideLeft" exit="exit" className="absolute w-[80%] md:w-[60%] lg:w-[45%] max-w-2xl"><TestimonialCard testimonial={prevTestimonial} isActive={false} /></motion.div>)}
+                                {currentTestimonial && (<motion.div key={`current-${currentTestimonial.id}`} custom={direction} variants={cardVariants} initial="enter" animate="center" exit="exit" className="absolute w-[85%] md:w-[70%] lg:w-[50%] max-w-3xl z-10"><TestimonialCard testimonial={currentTestimonial} isActive={true} /></motion.div>)}
+                                {numTestimonials > 1 && nextTestimonial && (<motion.div key={`next-${nextTestimonial.id}`} custom={direction} variants={cardVariants} initial="enter" animate="sideRight" exit="exit" className="absolute w-[80%] md:w-[60%] lg:w-[45%] max-w-2xl"><TestimonialCard testimonial={nextTestimonial} isActive={false} /></motion.div>)}
+                            </AnimatePresence>
                         </div>
-                     ) : ( <div className="text-center text-gray-500">No testimonials yet.</div> )}
+                    ) : (<div className="text-center text-gray-500">No testimonials yet.</div>)}
                 </div>
-                 <div className="flex justify-center gap-2 mt-8">
-                     {numTestimonials > 1 && validTestimonials.map((_, index) => (<button key={index} onClick={() => { let newDirection = 0; if (index > currentIndex) newDirection = 1; else if (index < currentIndex) newDirection = -1; setDirection(newDirection); setCurrentIndex(index);}} className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${ currentIndex === index ? 'bg-emerald-500 scale-125' : 'bg-gray-600 hover:bg-gray-400'}`}/>))}
+
+                <div className="flex justify-center gap-3 mt-12">
+                    {numTestimonials > 1 && validTestimonials.map((_, index) => (
+                        <button
+                            key={index}
+                            onClick={() => { let newDirection = 0; if (index > currentIndex) newDirection = 1; else if (index < currentIndex) newDirection = -1; setDirection(newDirection); setCurrentIndex(index); }}
+                            className={`w-2 h-2 rounded-full transition-all duration-300 ${currentIndex === index ? 'bg-emerald-500 w-8 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-white/20 hover:bg-white/40'}`}
+                        />
+                    ))}
                 </div>
             </div>
         </section>
     );
 };
 
-
-// --- Star Rating Input (No changes) ---
+// --- Star Rating Input ---
 const StarRatingInput = ({ rating, setRating }) => {
     const [hoverRating, setHoverRating] = useState(0);
     return (
-        <div className="flex items-center gap-1" onMouseLeave={()=>setHoverRating(0)}>
+        <div className="flex items-center gap-1.5" onMouseLeave={() => setHoverRating(0)}>
             {[...Array(5)].map((_, i) => {
                 const ratingValue = i + 1;
-                return ( <motion.button key={i} type="button" onClick={()=>setRating(ratingValue)} onMouseEnter={()=>setHoverRating(ratingValue)} whileHover={{ scale:1.2 }} whileTap={{ scale:0.9 }}><Star className={`w-8 h-8 cursor-pointer transition-colors ${ratingValue <= (hoverRating || rating) ? 'text-yellow-400 fill-yellow-400':'text-gray-500 hover:text-yellow-300/50'}`} /></motion.button> );
+                return (
+                    <motion.button
+                        key={i} type="button"
+                        onClick={() => setRating(ratingValue)}
+                        onMouseEnter={() => setHoverRating(ratingValue)}
+                        whileHover={{ scale: 1.2 }}
+                        whileTap={{ scale: 0.9 }}
+                    >
+                        <Star className={`w-8 h-8 cursor-pointer transition-colors ${ratingValue <= (hoverRating || rating) ? 'text-emerald-400 fill-emerald-400' : 'text-white/10 hover:text-emerald-500/50'}`} />
+                    </motion.button>
+                );
             })}
         </div>
     );
 };
 
-// --- ✨ UPDATED Review Trigger Section (Light Theme) ---
+// --- Review Trigger Section ---
 const ReviewTriggerSection = ({ onButtonClick }) => {
-     const textRevealVariants = {
+    const textRevealVariants = {
         hidden: { opacity: 0, y: 20 },
         visible: (i = 1) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] } })
     };
     return (
-        // ✨ Changed background, text, border colors
-        <section id="review" className="bg-white text-gray-800 py-20 md:py-32 border-t border-gray-200">
-            <div className="max-w-3xl mx-auto px-4 md:px-8">
-                <motion.div className="text-center flex flex-col items-center" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }} transition={{ staggerChildren: 0.2 }}>
-                    {/* ✨ Changed text color */}
-                    <motion.h2 variants={textRevealVariants} className="text-3xl md:text-4xl font-bold tracking-tighter text-gray-900">
+        <section className="bg-[#111] text-white py-24 md:py-32 border-t border-white/5 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_10%,transparent_100%)] pointer-events-none" />
+
+            <div className="max-w-4xl mx-auto px-4 md:px-8 relative z-10">
+                <motion.div className="text-center flex flex-col items-center bg-[#0A0A0A]/80 backdrop-blur-xl border border-white/10 rounded-[3rem] p-12 md:p-16 shadow-2xl" initial="hidden" whileInView="visible" viewport={{ once: true }} transition={{ staggerChildren: 0.1 }}>
+                    <motion.h2 variants={textRevealVariants} className="text-3xl md:text-5xl font-medium tracking-tight text-white mb-4">
                         Share Your Experience
                     </motion.h2>
-                    {/* ✨ Changed text color */}
-                    <motion.p variants={textRevealVariants} custom={2} className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-                        Loved the animations, React skills, or full-stack work? Let others know!
+                    <motion.p variants={textRevealVariants} custom={2} className="text-lg text-gray-400 font-light max-w-xl mx-auto mb-10">
+                        Loved the animations, React skills, or the overall design? I highly value your feedback. Let others know!
                     </motion.p>
                     <motion.div variants={textRevealVariants} custom={3}>
                         <motion.button
                             onClick={onButtonClick}
-                             // ✨ Changed text color
-                            className="mt-8 text-lg font-semibold text-emerald-600 inline-flex items-center gap-2 group"
-                             whileHover={{ gap: "1rem", scale: 1.05 }}
-                             transition={{type: 'spring', stiffness: 300}}
+                            className="bg-white text-black px-8 py-3.5 rounded-full font-semibold inline-flex items-center gap-2 group hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] text-sm"
                         >
-                            <span>Write a Review</span>
-                            <motion.div whileHover={{ rotate: 45 }}>
-                                <ArrowUpRight className="w-5 h-5 transition-transform" />
-                            </motion.div>
+                            <span className="relative z-10 flex items-center gap-2">
+                                Write a Review
+                                <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                            </span>
                         </motion.button>
                     </motion.div>
                 </motion.div>
@@ -227,36 +209,49 @@ const ReviewTriggerSection = ({ onButtonClick }) => {
     );
 };
 
-// --- Review Modal (Dark Theme - No changes needed) ---
+// --- Review Modal ---
 const ReviewModal = ({ isOpen, onClose, onReviewSubmit }) => {
     const [name, setName] = useState('');
     const [review, setReview] = useState('');
     const [rating, setRating] = useState(0);
     const [submitted, setSubmitted] = useState(false);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => { if (!isOpen) { const timer = setTimeout(() => { setName(''); setReview(''); setRating(0); setSubmitted(false); }, 300); return () => clearTimeout(timer); } }, [isOpen]);
-    const handleSubmit = (e) => { e.preventDefault(); if(!name || !review || rating===0) { alert("Please fill all fields & provide a rating."); return; } onReviewSubmit({ quote: review, name, company:"Valued Client", rating }); setSubmitted(true); setTimeout(onClose, 2000); };
-    const inputClasses = "w-full px-4 py-2 bg-[#2a2a2a] border border-white/20 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition";
+
+    const handleSubmit = (e) => { e.preventDefault(); if (!name || !review || rating === 0) { alert("Please fill all fields & provide a rating."); return; } onReviewSubmit({ quote: review, name, company: "Valued Client", rating }); setSubmitted(true); setTimeout(onClose, 2000); };
+
+    const inputClasses = "w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition font-light text-sm";
+
     return (
         <AnimatePresence>
             {isOpen && (
-                <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={onClose} className="fixed inset-0 bg-black/80 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
-                    <motion.div initial={{scale:0.9, opacity:0, y:50}} animate={{scale:1, opacity:1, y:0}} exit={{scale:0.9, opacity:0, y:50}} transition={{ type:'spring', stiffness:300, damping:30 }} onClick={(e)=>e.stopPropagation()} className="bg-[#1f1f1f] border border-white/10 text-gray-200 rounded-2xl shadow-2xl w-full max-w-lg p-8 relative">
-                        <motion.button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-white" whileHover={{ scale: 1.1, rotate: 90 }}><X size={24}/></motion.button>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/80 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
+                    <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} onClick={(e) => e.stopPropagation()} className="bg-[#0A0A0A] border border-white/10 text-gray-200 rounded-3xl shadow-2xl w-full max-w-lg p-8 md:p-10 relative overflow-hidden">
+
+                        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500" />
+                        <motion.button onClick={onClose} className="absolute top-6 right-6 text-gray-500 hover:text-white" whileHover={{ scale: 1.1, rotate: 90 }}><X size={24} /></motion.button>
+
                         <AnimatePresence mode="wait">
                             {!submitted ? (
-                                <motion.div key="form" initial={{opacity: 0}} animate={{opacity: 1}} exit={{opacity: 0}}>
-                                    <h2 className="text-3xl font-bold mb-6 text-white">Share Your Feedback</h2>
+                                <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                                    <h2 className="text-2xl font-bold mb-2 text-white tracking-tight">Leave Feedback</h2>
+                                    <p className="text-gray-400 text-sm font-light mb-8">Share your thoughts on working together.</p>
+
                                     <form onSubmit={handleSubmit} className="space-y-6">
-                                        <div className="flex flex-col items-center"><label className="text-lg font-semibold mb-2 text-gray-300">Your Rating</label><StarRatingInput rating={rating} setRating={setRating} /></div>
-                                        <div><label htmlFor="modal-name" className="block text-sm font-medium text-gray-400 mb-1">Name</label><input type="text" id="modal-name" value={name} onChange={(e)=>setName(e.target.value)} className={inputClasses} required /></div>
-                                        <div><label htmlFor="modal-review" className="block text-sm font-medium text-gray-400 mb-1">Review</label><textarea id="modal-review" rows="4" value={review} onChange={(e)=>setReview(e.target.value)} className={inputClasses} required></textarea></div>
-                                        <div><motion.button type="submit" className="w-full bg-emerald-600 text-white px-8 py-3 rounded-full font-semibold inline-block hover:bg-emerald-500 transition-colors" whileHover={{ scale:1.05 }} whileTap={{ scale:0.95 }} transition={{ type:'spring', stiffness:400, damping:10 }}>Submit Review</motion.button></div>
+                                        <div className="flex flex-col"><label className="text-sm font-medium mb-2 text-gray-300">Your Rating</label><StarRatingInput rating={rating} setRating={setRating} /></div>
+                                        <div><label htmlFor="modal-name" className="block text-sm font-medium text-gray-300 mb-2">Name</label><input type="text" id="modal-name" value={name} onChange={(e) => setName(e.target.value)} className={inputClasses} placeholder="John Doe" required /></div>
+                                        <div><label htmlFor="modal-review" className="block text-sm font-medium text-gray-300 mb-2">Review</label><textarea id="modal-review" rows="4" value={review} onChange={(e) => setReview(e.target.value)} className={`${inputClasses} resize-none custom-scrollbar`} placeholder="Write your experience here..." required></textarea></div>
+                                        <div className="pt-2"><motion.button type="submit" className="w-full bg-emerald-600 text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-emerald-500 transition-colors shadow-[0_0_15px_rgba(16,185,129,0.2)]" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Submit Review</motion.button></div>
                                     </form>
                                 </motion.div>
                             ) : (
-                                <motion.div key="thank-you" className="text-center py-8" initial={{opacity:0, scale:0.8}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.8}}>
-                                    <h3 className="text-3xl font-bold text-emerald-400">Thank You!</h3>
-                                    <p className="mt-2 text-lg text-gray-300">Your review has been submitted.</p>
+                                <motion.div key="thank-you" className="text-center py-12 flex flex-col items-center" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+                                    <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mb-6 border border-emerald-500/20">
+                                        <Star className="w-8 h-8 text-emerald-400 fill-emerald-400" />
+                                    </div>
+                                    <h3 className="text-3xl font-bold text-white mb-2">Thank You!</h3>
+                                    <p className="text-gray-400 font-light">Your review has been successfully submitted and will be displayed shortly.</p>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -266,4 +261,3 @@ const ReviewModal = ({ isOpen, onClose, onReviewSubmit }) => {
         </AnimatePresence>
     );
 };
-
