@@ -12,10 +12,10 @@ import Img5 from '../assets/Img5.png';
 
 // --- Project Data ---
 const workProjects = [
-    { id: 1, title: "Smart Shopping Hub", category: "E-Commerce Website", image: Img3, link: "https://ecommerce-project-app-l9af.onrender.com/", type: 'demo', description: "Developed a full-stack e-commerce platform with product management, user accounts, and a clean user interface using the MERN stack." },
+    { id: 1, title: "Jewellry Shop", category: "E-Commerce Website", image: Img3, link: "https://69e65bda2b136f16dfae4964--jewellryshop.netlify.app/", type: 'demo', description: "Developed a full-stack e-commerce platform with product management, user accounts, and a clean user interface using the MERN stack." },
     { id: 2, title: "Modern Website Design", category: "Wedding Planner Website", image: Img4, link: "https://wedding-planner-p2ho.vercel.app/", type: 'demo', description: "Created a visually appealing and informative website for a professional wedding planner, focusing on high-quality image galleries and easy-to-use contact forms." },
-    { id: 3, title: "Modern Portfolio Template", category: "Portfolio Website", image: Img1, link: "https://duo-plum.vercel.app/", type: 'demo', description: "A sleek and modern portfolio template designed with React and Framer Motion, showcasing project sections and smooth page transitions." },
-    { id: 4, title: "Jewellery Brand Concept", category: "Jewellry Website", image: Img2, link: "https://jewellry-business.vercel.app/", type: 'demo', description: "Elegant landing page design concept developed for a luxury jewellery brand, emphasizing visual appeal and brand storytelling." },
+    { id: 3, title: "RealState", category: "RealState Website", image: Img1, link: "https://reallstates.netlify.app/", type: 'demo', description: "A sleek and modern realstate website with Nextjs and Framer Motion, showcasing project sections and smooth page transitions." },
+    // { id: 4, title: "Jewellery Brand Concept", category: "Jewellry Website", image: Img2, link: "https://jewellry-business.vercel.app/", type: 'demo', description: "Elegant landing page design concept developed for a luxury jewellery brand, emphasizing visual appeal and brand storytelling." },
     { id: 5, title: "Interior Design Website", category: "Interior Designer Website", image: Img5, link: "https://awadhinteriordesigner.in/", type: 'client', description: "A conceptual design for an interior design firm's website, focusing on large, high-impact imagery and detailed project case studies. (Work In Progress)" },
 ];
 
