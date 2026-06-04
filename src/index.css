@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
 @theme {
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
   --color-brand-bg: #0A0A0A;
-  --color-brand-surface: #171717;
+  --color-brand-surface: #111111;
+  --color-brand-accent: #E63946;
+  --color-brand-text: #F0EAE2;
 }
 
 html,
@@ -11,16 +15,15 @@ body {
   padding: 0;
   overflow-x: hidden;
   background-color: #0A0A0A;
-  color: #e5e5e5;
+  color: #F0EAE2;
 }
 
 * {
   box-sizing: border-box;
 }
 
-/* Custom scrollbar for a premium feel */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -28,23 +31,19 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
+  background: #222;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #10b981;
-  /* emerald-500 */
+  background: #E63946;
 }
 
-/* Custom Selection */
 ::selection {
-  background-color: rgba(16, 185, 129, 0.3);
-  /* emerald-500 with opacity */
-  color: #ffffff;
+  background-color: rgba(230, 57, 70, 0.2);
+  color: #E63946;
 }
 
-/* Lenis recommended base styles */
 html.lenis,
 html.lenis body {
   height: auto;
@@ -65,3 +64,7 @@ html.lenis body {
 .lenis.lenis-scrolling iframe {
   pointer-events: none;
 }
+
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #1a1a1a; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
